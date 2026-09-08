@@ -45,6 +45,14 @@
   .btn:hover{background:var(--gold);color:var(--cream)}
   .btn.solid{background:var(--gold);color:var(--cream)}
   .btn.solid:hover{background:transparent;color:var(--gold)}
+  .hamburger{display:none;flex-direction:column;justify-content:center;gap:6px;
+    width:44px;height:44px;padding:0;margin-left:auto;background:transparent;
+    border:none;cursor:pointer;position:relative;z-index:60}
+  .hamburger span{display:block;width:26px;height:1px;margin:0 auto;background:var(--cream-ink);
+    transition:transform .3s ease,opacity .25s ease}
+  .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+  .hamburger.open span:nth-child(2){opacity:0}
+  .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
   nav .links .btn{padding:.6rem 1.3rem;opacity:1}
 
   /* ---------- Sections ---------- */
@@ -131,8 +139,16 @@
     font-family:'Lato',sans-serif;font-size:1.05rem;color:inherit;outline:none;border-radius:0}
   input:focus,select:focus{border-bottom-color:var(--gold)}
   select option{color:#2E2C2B}
+  select optgroup{color:#2E2C2B;font-style:normal;font-weight:700}
   form .btn{margin-top:1.6rem;align-self:center}
+  .f-row{display:flex;gap:1.3rem}
+  .f-col{flex:1;display:flex;flex-direction:column;gap:1.3rem}
+  .opt{opacity:.5;letter-spacing:.14em;text-transform:none;font-style:italic}
+  .hp{position:absolute!important;left:-9999px!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none}
+  @media(max-width:600px){.f-row{flex-direction:column}}
   .confirm{display:none;margin-top:2.6rem;font-family:'Cormorant',serif;font-style:italic;font-size:1.7rem;color:var(--gold)}
+  .formerr{display:none;margin-top:1.6rem;font-family:'Lato',sans-serif;font-size:.85rem;
+    letter-spacing:.06em;color:#C98A7A;max-width:460px;margin-left:auto;margin-right:auto}
 
   /* ---------- Page headers ---------- */
   .pagehead{padding:12rem 3rem 6rem;text-align:center;background:var(--char);color:var(--cream-ink)}
@@ -146,8 +162,17 @@
   .mt{margin-top:3.4rem}
   @media(max-width:900px){
     nav{padding:.8rem 1.2rem}
-    nav .links a:not(.btn){display:none}
+    nav .brand{position:relative;z-index:60}
     nav .brand span{display:none}
+    .hamburger{display:flex}
+    nav .links{position:fixed;top:0;left:0;right:0;bottom:0;margin:0;
+      background:var(--char);flex-direction:column;justify-content:center;align-items:center;
+      gap:2.3rem;opacity:0;visibility:hidden;transform:translateY(-10px);
+      transition:opacity .35s ease,transform .35s ease,visibility .35s;z-index:55}
+    nav .links.open{opacity:1;visibility:visible;transform:none}
+    nav .links a:not(.btn){display:block;font-family:'Cormorant SC',serif;
+      font-size:1.15rem;letter-spacing:.26em;opacity:.92}
+    nav .links .btn{margin-top:.8rem;padding:1rem 2.4rem;font-size:.7rem}
     .screen{padding:6rem 1.4rem}
     .cards,.cards.light,.two-col{grid-template-columns:1fr}
     .week .row,.tl .row{flex-direction:column;gap:.3rem}
@@ -167,8 +192,11 @@
     <a data-nav="programming">The Programming</a>
     <a data-nav="events">Private Events</a>
     <a data-nav="story">The Story</a>
-    <a class="btn" data-nav="home" data-scroll="#waitlist">Join the Waitlist</a>
+    <a class="btn" data-nav="home" data-scroll="#waitlist">Join the Interest List</a>
   </div>
+  <button class="hamburger" id="navToggle" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <!-- ================= HOME ================= -->
@@ -177,7 +205,7 @@
   <section class="hero">
     <img class="logo" src="https://static.wixstatic.com/media/865f91_34fe95694103433ba60c2ccd95f9596c~mv2.png" alt="The Yosemite Club — Estd. 1888">
     <div class="sub">Opening 2027 · Downtown Stockton</div>
-    <a class="btn" data-nav="home" data-scroll="#waitlist">Join the Waitlist</a>
+    <a class="btn" data-nav="home" data-scroll="#waitlist">Join the Interest List</a>
   </section>
 
   <section class="screen">
@@ -251,22 +279,44 @@
     <div class="narrow rev">
       <img class="mono" src="data:image/png;base64,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" alt="">
       <h2>Founding memberships<br>will be limited.</h2>
-      <p class="lede">The waitlist is open. Those on it will be the first invited.</p>
+      <p class="lede">The interest list is open. Those on it will be the first invited.</p>
       <form id="wl-form">
-        <label for="f-name">Name</label>
-        <input id="f-name" type="text" required autocomplete="name">
+        <div class="f-row">
+          <div class="f-col">
+            <label for="f-first">First Name</label>
+            <input id="f-first" type="text" required autocomplete="given-name">
+          </div>
+          <div class="f-col">
+            <label for="f-last">Last Name</label>
+            <input id="f-last" type="text" required autocomplete="family-name">
+          </div>
+        </div>
         <label for="f-email">Email</label>
         <input id="f-email" type="email" required autocomplete="email">
-        <label for="f-role">I'm interested as</label>
-        <select id="f-role">
-          <option>Future Member</option>
-          <option>Investor</option>
-          <option>Press</option>
-          <option>Event Host</option>
+        <label for="f-interest">I'm interested in</label>
+        <select id="f-interest">
+          <optgroup label="Membership">
+            <option>Founding Membership</option>
+            <option>Individual Membership</option>
+            <option>Social Membership</option>
+            <option>Corporate Membership</option>
+          </optgroup>
+          <optgroup label="Other Enquiries">
+            <option>Private events</option>
+            <option>Investment</option>
+            <option>Press / media</option>
+            <option>Just keep me posted</option>
+          </optgroup>
         </select>
-        <button class="btn solid" type="submit">Join the Waitlist</button>
+        <label for="f-company">Company / what you do <span class="opt">optional</span></label>
+        <input id="f-company" type="text" autocomplete="organization">
+        <label for="f-phone">Phone <span class="opt">optional</span></label>
+        <input id="f-phone" type="tel" autocomplete="tel">
+        <input id="f-website" class="hp" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <button class="btn solid" type="submit">Join the Interest List</button>
       </form>
       <div class="confirm" id="wl-confirm">Noted. You'll hear from us.</div>
+      <div class="formerr" id="wl-error">Something went wrong sending that. Please try again, or email us directly.</div>
     </div>
   </section>
 </main>
@@ -363,7 +413,7 @@
   <section class="screen dark center" style="min-height:60vh">
     <div class="narrow rev">
       <p class="lede">The first menus will be set with the founding class in mind.</p>
-      <div class="mt"><a class="btn" data-nav="home" data-scroll="#waitlist">Join the Waitlist</a></div>
+      <div class="mt"><a class="btn" data-nav="home" data-scroll="#waitlist">Join the Interest List</a></div>
     </div>
   </section>
   <script>
@@ -412,7 +462,7 @@
       </div>
       <div class="center mt rev">
         <p class="lede">Programming will be published to members monthly. It begins with the founding class.</p>
-        <div class="mt"><a class="btn" data-nav="home" data-scroll="#waitlist">Join the Waitlist</a></div>
+        <div class="mt"><a class="btn" data-nav="home" data-scroll="#waitlist">Join the Interest List</a></div>
       </div>
     </div>
   </section>
@@ -450,7 +500,7 @@
     <div class="narrow rev">
       <h2>Interested in hosting in 2027?</h2>
       <p class="lede">Get in touch — event dates will be offered to this list first.</p>
-      <div class="mt"><a class="btn" data-nav="home" data-scroll="#waitlist" data-role="Event Host">Get in Touch</a></div>
+      <div class="mt"><a class="btn" data-nav="home" data-scroll="#waitlist" data-role="Private events">Get in Touch</a></div>
     </div>
   </section>
 </main>
@@ -500,7 +550,7 @@
   <section class="screen dark center" style="min-height:70vh">
     <div class="narrow rev">
       <h2>The ledger is open again.</h2>
-      <div class="mt"><a class="btn" data-nav="home" data-scroll="#waitlist">Join the Waitlist</a></div>
+      <div class="mt"><a class="btn" data-nav="home" data-scroll="#waitlist">Join the Interest List</a></div>
     </div>
   </section>
 </main>
@@ -521,7 +571,7 @@
   function go(id, scrollTo, role){
     pages.forEach(p => p.classList.toggle('active', p.id === id));
     navLinks.forEach(a => a.classList.toggle('active', a.dataset.nav === id && !a.classList.contains('btn')));
-    if (role){ const s = document.getElementById('f-role'); if (s) s.value = role; }
+    if (role){ const s = document.getElementById('f-interest'); if (s) s.value = role; }
     if (scrollTo){
       requestAnimationFrame(() => {
         const el = document.querySelector(scrollTo);
@@ -529,16 +579,80 @@
       });
     } else { window.scrollTo({top:0}); }
   }
+  var navToggle = document.getElementById('navToggle');
+  var navLinks  = document.querySelector('nav .links');
+
+  function closeMenu(){
+    navLinks.classList.remove('open');
+    navToggle.classList.remove('open');
+    navToggle.setAttribute('aria-expanded','false');
+    navToggle.setAttribute('aria-label','Open menu');
+    document.body.style.overflow = '';
+  }
+
+  navToggle.addEventListener('click', function(){
+    var isOpen = navLinks.classList.toggle('open');
+    navToggle.classList.toggle('open', isOpen);
+    navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    navToggle.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  });
+
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && navLinks.classList.contains('open')) closeMenu();
+  });
+
   document.querySelectorAll('[data-nav]').forEach(el => {
     el.addEventListener('click', e => {
       e.preventDefault();
+      closeMenu();
       go(el.dataset.nav, el.dataset.scroll, el.dataset.role);
     });
   });
-  document.getElementById('wl-form').addEventListener('submit', e => {
+  // Google Apps Script endpoint - appends to the "Interest List" tab of the linked Sheet.
+  var INTEREST_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwoKuZD0-n8Gdd1wfFCzMzUq6IgMzu-7OLlZFH9ZdY6JPTlnaI5sQXNlGtQ822SpmY/exec';
+
+  document.getElementById('wl-form').addEventListener('submit', function(e){
     e.preventDefault();
-    e.target.style.display = 'none';
-    document.getElementById('wl-confirm').style.display = 'block';
+    var form = e.target;
+    var btn  = form.querySelector('button[type=submit]');
+    var err  = document.getElementById('wl-error');
+    var val  = function(id){ var n = document.getElementById(id); return n ? n.value.trim() : ''; };
+
+    function showConfirmation(){
+      form.style.display = 'none';
+      err.style.display = 'none';
+      document.getElementById('wl-confirm').style.display = 'block';
+    }
+    function showError(){
+      err.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Join the Interest List';
+    }
+
+    // Honeypot: only bots fill this hidden field.
+    if (val('f-website')) { showConfirmation(); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    err.style.display = 'none';
+
+    var payload = new URLSearchParams({
+      firstName: val('f-first'),
+      lastName:  val('f-last'),
+      email:     val('f-email'),
+      interest:  val('f-interest'),
+      company:   val('f-company'),
+      phone:     val('f-phone'),
+      website:   val('f-website')
+    });
+
+    fetch(INTEREST_ENDPOINT, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'},
+      body: payload.toString()
+    }).then(showConfirmation).catch(showError);
   });
 </script>
 </body>
