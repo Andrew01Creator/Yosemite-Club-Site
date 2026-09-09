@@ -835,7 +835,6 @@
     if (val('f-website')) { showConfirmation(); return; }
 
     btn.disabled = true;
-    btn.textContent = 'Sending...';
     err.style.display = 'none';
 
     var payload = new URLSearchParams({
@@ -847,14 +846,33 @@
       phone:     val('f-phone'),
       notes:     val('f-notes'),
       website:   val('f-website')
-    });
+    }).toString();
 
-    fetch(INTEREST_ENDPOINT, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'},
-      body: payload.toString()
-    }).then(showConfirmation).catch(showError);
+    var CT = 'application/x-www-form-urlencoded;charset=UTF-8';
+    var queued = false;
+
+    // sendBeacon hands the request to the browser, which delivers it even if the
+    // visitor closes the tab immediately. No waiting on Apps Script's cold start.
+    if (navigator.sendBeacon) {
+      try { queued = navigator.sendBeacon(INTEREST_ENDPOINT, new Blob([payload], {type: CT})); }
+      catch (beaconErr) { queued = false; }
+    }
+
+    // Fallback for browsers without sendBeacon. keepalive lets it survive unload too.
+    if (!queued) {
+      try {
+        fetch(INTEREST_ENDPOINT, {
+          method: 'POST',
+          mode: 'no-cors',
+          keepalive: true,
+          headers: {'Content-Type': CT},
+          body: payload
+        }).catch(function(){});
+        queued = true;
+      } catch (fetchErr) { queued = false; }
+    }
+
+    if (queued) showConfirmation(); else showError();
   });
 </script>
 </body>
